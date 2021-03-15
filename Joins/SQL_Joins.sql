@@ -129,15 +129,58 @@ left join Inscripciones As I on U.ID = I.IDUsuario
 Where I.IDCurso is null
 
 -- 18 - Listado con nombre y apellido, nombre del curso, puntaje otorgado y texto de la reseña. Sólo de aquellos usuarios que hayan realizado una reseña inapropiada.
+Select Nombres + ' ,' + Apellidos As [Nombre y Apellido],C.Nombre,R.Puntaje,R.Observaciones From Datos_Personales As DP
+inner join Usuarios As U on DP.ID = U.ID
+inner join Inscripciones As I on U.ID = I.IDUsuario
+inner join Reseñas As R on I.ID = R.IDInscripcion
+inner join Cursos As C on C.ID = I.IDCurso
+Where R.Inapropiada = 1
 
--- 19 - Listado con nombre del curso, costo de cursado, costo de certificación, nombre del idioma y nombre del tipo de idioma de todos los cursos cuya  fecha de estreno haya sido antes del año actual.
+Select * From Reseñas
+-- Para saber cuales son las reseñas apropiadas e inapropiadas
+
+-- 19 - Listado con nombre del curso, costo de cursado, costo de certificación, nombre del idioma y nombre del tipo de idioma de todos los cursos cuya  
+-- fecha de estreno haya sido antes del año actual.
 -- Ordenado por nombre del curso y luego por nombre de tipo de idioma. Ambos ascendentemente.
- 
+ Select C.Nombre,CostoCurso,CostoCertificacion,ID.Nombre As [Nombre Idioma],TI.Nombre [Nombre Tipo de Idioma],C.Estreno From Cursos As C
+ inner join Inscripciones As I on C.ID = I.IDCurso
+ inner join Certificaciones As CER on I.ID = CER.IDInscripcion
+ inner join Idiomas_x_Curso As IxC on C.ID = IxC.IDCurso
+ inner join Idiomas As ID on ID.ID = IxC.IDIdioma
+ inner join TiposIdioma As TI on TI.ID = IxC.IDTipo
+ Where C.Estreno < '2020'
+ Order by C.Nombre ASC,TI.Nombre ASC
+
+ Select C.Nombre,CostoCurso,CostoCertificacion,ID.Nombre As [Nombre Idioma],TI.Nombre [Nombre Tipo de Idioma],C.Estreno From Cursos As C
+ inner join Inscripciones As I on C.ID = I.IDCurso
+ inner join Certificaciones As CER on I.ID = CER.IDInscripcion
+ inner join Idiomas_x_Curso As IxC on C.ID = IxC.IDCurso
+ inner join Idiomas As ID on ID.ID = IxC.IDIdioma
+ inner join TiposIdioma As TI on TI.ID = IxC.IDTipo
+  Where C.Estreno >= '2020'
+  Order by C.Nombre ASC,TI.Nombre ASC
+ -- Con esto podemos ver los cursos estrenados en la fecha actual
+
 -- 20 - Listado con nombre del curso y todos los importes de los pagos relacionados.
+Select C.Nombre As [Nombre del curso],P.Importe From Cursos As C 
+inner join Inscripciones As I on C.ID = I.IDCurso
+inner join Pagos As P on I.ID = P.IDInscripcion
+
+Select C.Nombre As [Nombre del curso],(C.CostoCertificacion + C.CostoCurso + I.Costo) As [Importe total de curso] From Cursos As C 
+inner join Inscripciones As I on C.ID = I.IDCurso
+-- Dice pagos relacionados
+
 
 -- 21 - Listado con nombre de curso, costo de cursado y una leyenda que indique "Costoso" si el costo de cursado es mayor a $ 15000, "Accesible" si el costo de cursado está entre $2500 y $15000, "Barato" si 
 -- el costo está entre $1 y $2499 y "Gratis" si el costo es $0.
-
+Select C.Nombre,C.CostoCurso,
+case 
+When C.CostoCurso > 15000 then 'Costoso'
+When C.CostoCurso >= 2500 then 'Accesible'
+When C.CostoCurso >= 1 then 'Barato'
+Else 'Gratis'
+End as 'Costo Descriptivo'
+From Cursos As C 
 
 
 
